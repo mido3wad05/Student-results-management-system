@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>نظام إدارة وتحليل نتائج الطلاب</title>
+</head>
+<body>
+<p>افتح الـ Console (اضغط F12 ثم تبويب Console) لمشاهدة المخرجات.</p>
+<script>
+// ============================================================
+// 1) هيكلة بيانات الطالب (Class & Constructor)
+// ============================================================
+class Student {
+    constructor(id, name, grades, attendance) {
+        this.id = id;                   // رقم الجلوس
+        this.name = name;               // الاسم
+        this.grades = grades;           // مصفوفة درجات 3 مواد
+        this.attendance = attendance;   // نسبة الحضور
+    }
+
+    // ========================================================
+    // 2) دوال التحليل الأكاديمي (Methods)
+    // ========================================================
+
+    // حساب المتوسط: reduce لجمع الدرجات ثم القسمة على عدد المواد
+    calculateAverage() {
+        const total = this.grades.reduce((sum, grade) => sum + grade, 0);
+        return total / this.grades.length;
+    }
+
+    // التقدير بالحروف: تستقبل المتوسط وتستخدم if/else
+    getGrade(average) {
+        if (average >= 90) {
+            return "A";
+        } else if (average >= 80) {
+            return "B";
+        } else if (average >= 70) {
+            return "C";
+        } else if (average >= 60) {
+            return "D";
+        } else if (average >= 50) {
+            return "E";
+        } else {
+            return "F";
+        }
+    }
+
+    // النتيجة النهائية: المتوسط >= 50 && الحضور >= 75
+    getFinalResult() {
+        if (this.calculateAverage() >= 50 && this.attendance >= 75) {
+            return "ناجح";
+        }
+        return "يحتاج مراجعة";
+    }
+}
+
+// ============================================================
+// 3) نظام تشغيل الجامعة (Objects Array)
+// ============================================================
+const studentsList = [
+    new Student(1001, "أحمد علي",    [85, 90, 80], 90),  // متوسط 85 - ناجح
+    new Student(1002, "سارة محمود",  [45, 40, 41], 80),  // متوسط 42 - متعثر
+    new Student(1003, "كريم حسن",    [95, 92, 98], 70),  // متوسط ممتاز لكن الحضور أقل من 75
+    new Student(1004, "منى إبراهيم", [50, 46, 48], 85)   // متوسط 48 - متعثر
+];
+
+// ============================================================
+// 4) لجنة الرأفة (Array Methods)
+// ============================================================
+
+// الاستخراج: filter للطلاب الذين متوسطهم بين 40 و 49
+const strugglingStudents = studentsList.filter(student => {
+    const average = student.calculateAverage();
+    return average >= 40 && average <= 49;
+});
+
+// المعالجة: map لإضافة 5 درجات رأفة لمتوسط كل طالب متعثر
+const upgradedStudents = strugglingStudents.map(student => {
+    const originalAverage = student.calculateAverage();
+    return {
+        id: student.id,
+        name: student.name,
+        originalAverage: originalAverage,
+        newAverage: originalAverage + 5
+    };
+});
+
+// التحليل: reduce لجمع المتوسطات الجديدة بعد التعديل
+const totalUpgraded = upgradedStudents.reduce(
+    (sum, student) => sum + student.newAverage, 0
+);
+
+// متوسط الرأفة مع "درع الحماية" لمنع القسمة على صفر
+let upgradedAverage = 0;
+if (upgradedStudents.length > 0) {
+    upgradedAverage = totalUpgraded / upgradedStudents.length;
+}
+
+// ============================================================
+// 5) المخرجات (Console Logging)
+// ============================================================
+
+console.log("========== تقرير الطلاب ==========");
+studentsList.forEach(student => {
+    const average = student.calculateAverage();
+    console.log(
+        "الاسم: " + student.name +
+        " | المتوسط: " + average.toFixed(2) +
+        " | التقدير: " + student.getGrade(average) +
+        " | النتيجة: " + student.getFinalResult()
+    );
+});
+
+console.log("========== الطلاب المتعثرون بعد الرأفة ==========");
+console.log(upgradedStudents);
+
+console.log("========== متوسط الرأفة ==========");
+console.log("متوسط درجات الطلاب المتعثرين بعد التعديل:", upgradedAverage);
+</script>
+</body>
+</html>
